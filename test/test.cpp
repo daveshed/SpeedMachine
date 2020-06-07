@@ -1,8 +1,4 @@
-#include <iostream>
-#include <limits>
-
 #include "MockTime.h"
-#include "../Osal.h"
 #include "../UltrasonicSensor.h"
 
 #include "CppUTest/TestHarness.h"
@@ -22,11 +18,6 @@ public:
         mock().actualCall("Disable").onObject(this);
         enabled = false;
     }
-    unsigned long GetPingElapsedTimeMicroseconds(void) const {
-        return elapsedTime;
-    }
-    // make the time public so that the tests can modify it...
-    unsigned long elapsedTime = 0U;
 private:
     bool enabled = false;
 };
@@ -44,6 +35,15 @@ public:
         mock().actualCall("Disable").onObject(this);
         enabled = false;
     }
+    void HandleEcho(void)
+    {
+        uint32_t elapsedTime = MockTime::GetTimeInMicroseconds() - initialTime;
+        if (listener) listener->HandleEcho(elapsedTime);
+    }
+    void HandlePing(void)
+    {
+        initialTime = MockTime::GetTimeInMicroseconds();
+    }
     void RegisterListener(EchoListener* toRegister) {listener = toRegister;}
     // make the listener public for the purposes of tests. This way we can
     // easily simulate the arrival of an echo or a timeout because one doesn't
@@ -51,6 +51,7 @@ public:
     EchoListener* GetEchoListener(void) {return listener;}
 private:
     EchoListener* listener = NULL;
+    uint32_t initialTime = 0;
     bool enabled = false;
 };
 
@@ -116,20 +117,22 @@ TEST(SensorOperationTestGroup, DetectSurfaceOneMeterAway)
 {
     //distance should be zero initialised...
     DOUBLES_EQUAL(0.0, sensor->GetDistanceCm(), 1.0);
+    receiver->HandlePing();
     //say the sensor detects a surface 1m away. Sound traveling at 344m/s will
     //take 2907us to reach it -> 5814us round trip. Therefore, the we should
     //expect the receiver to get an echo after this...
-    transmitter->elapsedTime = 5814U;
-    receiver->GetEchoListener()->HandleEcho();
+    MockTime::SetTimeInMicroseconds(5814U);
+    receiver->HandleEcho();
     DOUBLES_EQUAL(100.0, sensor->GetDistanceCm(), 1.0);
 }
 
 TEST(SensorOperationTestGroup, NoEchoReceivedShouldReturnMaxDistance)
 {
     DOUBLES_EQUAL(0.0, sensor->GetDistanceCm(), 1.0);
+    receiver->HandlePing();
     //maximum range of the sensor is 4m (8m round trip) so the time between
     //pings can never be more than this. This will give the maximum distance.
-    transmitter->elapsedTime = 23256U;
-    receiver->GetEchoListener()->HandleEcho();
+    MockTime::SetTimeInMicroseconds(23256U);
+    receiver->HandleEcho();
     DOUBLES_EQUAL(400.0, sensor->GetDistanceCm(), 1.0);
 }

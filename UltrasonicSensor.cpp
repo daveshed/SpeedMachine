@@ -27,7 +27,7 @@ double UltrasonicSensor::GetDistanceCm(void)
     return distance;
 }
 
-void UltrasonicSensor::HandleEcho(void)
+void UltrasonicSensor::HandleEcho(uint32_t delayMicroseconds)
 {
-    distance = (transmitter.GetPingElapsedTimeMicroseconds() * 0.0344) / 2.0;
+    distance = (delayMicroseconds * 0.0344) / 2.0;
 }
