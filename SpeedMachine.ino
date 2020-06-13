@@ -12,10 +12,26 @@ ArduinoReceiver receiver = ArduinoReceiver(ECHO_PIN);
 ArduinoTransmitter transmitter = ArduinoTransmitter(TRIGGER_PIN);
 UltrasonicSensor sensor = UltrasonicSensor(receiver, transmitter);
 
+void HandleInterrupt(void)
+{
+    bool risingEdge = digitalRead(ECHO_PIN);
+    if (risingEdge) receiver.HandlePing();
+    else receiver.HandleEcho();
+}
+
 void setup(void)
 {
     Serial.begin(9600);
     Serial.println("Setting up...");
+
+    //DISABLE_INTERRUPTS;
+    pinMode(ECHO_PIN, INPUT);
+    attachInterrupt(
+      digitalPinToInterrupt(ECHO_PIN),
+      HandleInterrupt,
+      CHANGE);
+    //ENABLE_INTERRUPTS;
+    //enabled = true;
     sensor.Enable();
     Serial.println("Setup done.");
 }

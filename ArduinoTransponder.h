@@ -30,7 +30,6 @@ private:
     bool enabled = false;
     uint32_t initialTime = 0;
     EchoListener* listener = NULL;
-    static void HandleInterrupt(void* context);
 };
 
 #endif // ARDUINOTRANSPONDER_H

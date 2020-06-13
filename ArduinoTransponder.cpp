@@ -61,15 +61,15 @@ void ArduinoReceiver::Enable(void)
 {
     Serial.println("Enabling receiver...");
     if (enabled) return;
-    DISABLE_INTERRUPTS;
-    pinMode(pin, INPUT);
-    attachInterrupt(
-      digitalPinToInterrupt(pin),
-      HandleInterrupt,
-      this, // context
-      CHANGE);
-    ENABLE_INTERRUPTS;
-    enabled = true;
+    // fix this...enabling is done externally right now. How could this class do it.
+//    DISABLE_INTERRUPTS;
+//    pinMode(pin, INPUT);
+//    attachInterrupt(
+//      digitalPinToInterrupt(pin),
+//      HandleInterrupt,
+//      CHANGE);
+//    ENABLE_INTERRUPTS;
+//    enabled = true;
 }
 
 void ArduinoReceiver::Disable(void)
@@ -100,12 +100,4 @@ void ArduinoReceiver::HandlePing(void)
 void ArduinoReceiver::RegisterListener(EchoListener* toRegister)
 {
     listener = toRegister;
-}
-
-static void ArduinoReceiver::HandleInterrupt(void* context)
-{
-    ArduinoReceiver* delegate = static_cast<ArduinoReceiver*>(context);
-    bool risingEdge = digitalRead(delegate->pin);
-    if (risingEdge) delegate->HandlePing();
-    else delegate->HandleEcho();
 }
