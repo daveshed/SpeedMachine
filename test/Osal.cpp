@@ -1,14 +1,20 @@
+#include <cstdint>
+
 #include "MockTime.h"
 #include "../Osal.h"
 
-// TODO - should use stdint!
-unsigned long Osal::GetTimeInMicroseconds(void)
+uint32_t Osal::GetTimeInMicroseconds(void)
 {
     return MockTime::GetTimeInMicroseconds();
 }
 
-void Osal::SleepMicroseconds(unsigned long sleepFor)
+uint32_t Osal::GetTimeInMilliseconds(void)
 {
-    unsigned long currentTime = MockTime::GetTimeInMicroseconds();
+    return MockTime::GetTimeInMilliseconds();
+}
+
+void Osal::SleepMicroseconds(uint32_t sleepFor)
+{
+    uint32_t currentTime = MockTime::GetTimeInMicroseconds();
     MockTime::SetTimeInMicroseconds(currentTime + sleepFor);
 }
