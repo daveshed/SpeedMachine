@@ -1,13 +1,14 @@
 #ifndef SPEEDMACHINE_H
 #define SPEEDMACHINE_H
-#include <cstddef>
-#include <cstdint>
-#include <string>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 using namespace std;
 
 namespace SpeedMachine
 {
     class Barrier;
+    class BarrierListener;
     class Controller;
     class Display;
 
@@ -18,6 +19,12 @@ namespace SpeedMachine
         NUM_UNITS,
     } Units;
 
+    class BarrierListener
+    {
+    public:
+        virtual void handleBarrierTriggered(Barrier*) = 0;
+    };
+
     class Barrier
     {
     public:
@@ -26,9 +33,9 @@ namespace SpeedMachine
         virtual void enable(void) = 0;
         virtual void disable(void) = 0;
         virtual uint32_t triggeredAt(void) = 0;
-        void registerListener(Controller* toRegister) {controller = toRegister;}
+        void registerListener(BarrierListener* toRegister) {listener = toRegister;}
     protected:
-        Controller* controller = NULL;
+        BarrierListener* listener = NULL;
     };
 
     class Display
@@ -36,10 +43,10 @@ namespace SpeedMachine
     public:
         virtual void clear(void) = 0;
         virtual void showDecimal(double decimal, uint8_t precision) = 0;
-        virtual void showText(string text) = 0;
+        virtual void doAnimation(void) = 0;
     };
 
-    class Controller
+    class Controller : public BarrierListener
     {
     public:
         Controller(
@@ -48,8 +55,9 @@ namespace SpeedMachine
         bool isReady(void);
         void stop(void);
         void setUnits(Units);
+        void setBarrierDistanceM(double);
         // need to obscure this somehow...
-        void barrierTriggered(Barrier* barrier);
+        void handleBarrierTriggered(Barrier* barrier);
     private:
         double calculateVelocity(double transitSec);
         static uint32_t maxTransitSec;

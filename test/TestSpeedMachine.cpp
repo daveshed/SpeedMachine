@@ -6,6 +6,8 @@
 
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
+
+#define SEC_TO_USEC 1E6
 using namespace std;
 
 class MockBarrier : public SpeedMachine::Barrier
@@ -35,8 +37,8 @@ public:
     // utilities accessible from tests...
     void simulateTriggered(void)
     {
-        assert(controller && "No controller registered. Cannot simulate!");
-        controller->barrierTriggered(this);
+        assert(listener && "No listener registered. Cannot simulate!");
+        listener->handleBarrierTriggered(this);
     }
     uint32_t triggeredTime = 0UL;
     bool enabled = false;
@@ -56,12 +58,9 @@ public:
             .withParameter("precision", precision);
         lastValue = decimal;
     }
-    void showText(string text)
+    void doAnimation(void)
     {
-        // mock()
-        //     .actualCall("showText")
-        //     .onObject(this)
-        //     .withParameter("text", text);
+        mock().actualCall("doAnimation").onObject(this);
     }
     void clear(void)
     {
@@ -94,11 +93,12 @@ TEST_GROUP(SpeedMachineTestGroup)
     }
 };
 
-TEST(SpeedMachineTestGroup, ShouldEnableBarriersAndClearDisplayOnStart)
+TEST(SpeedMachineTestGroup, ShouldEnableBarriersAndDisplayDoAnimationOnStart)
 {
     mock().expectOneCall("enable").onObject(barrier1);
     mock().expectOneCall("enable").onObject(barrier2);
     mock().expectOneCall("clear").onObject(display);
+    mock().expectOneCall("doAnimation").onObject(display);
     machine->start();
     mock().checkExpectations();
 }
@@ -135,7 +135,7 @@ TEST(SpeedMachineTestGroup, BarriersTriggeredShouldDisplaySpeed)
     mock().enable();
     // assuming that barriers are 1m apart and speed is measured in m/s
     barrier1->triggeredTime = 0UL;
-    barrier2->triggeredTime = 1000UL;
+    barrier2->triggeredTime = SEC_TO_USEC;
     mock().expectOneCall("triggeredAt").onObject(barrier2);
     mock().expectOneCall("triggeredAt").onObject(barrier1);
     mock().expectOneCall("clear").onObject(display);
@@ -155,7 +155,7 @@ TEST(
     mock().disable();
     machine->start();
     mock().enable();
-    barrier2->triggeredTime = 4320123UL;
+    barrier2->triggeredTime = 10 * SEC_TO_USEC;
     barrier1->triggeredTime = 432UL;  // triggered ages ago
     // Nothing should be written to the display until barrier 1 is then
     // triggered...
@@ -172,7 +172,7 @@ TEST(
         .onObject(display)
         .withParameter("decimal", -1.0)
         .withParameter("precision", 1);
-    barrier1->triggeredTime = barrier2->triggeredTime + 1000UL;
+    barrier1->triggeredTime = barrier2->triggeredTime + SEC_TO_USEC;
     barrier1->simulateTriggered();
     mock().checkExpectations();
 }
@@ -186,7 +186,7 @@ TEST(
     machine->start();
     mock().enable();
     barrier1->triggeredTime = 432UL;  // triggered ages ago
-    barrier2->triggeredTime = 4320123UL;
+    barrier2->triggeredTime = 10 * SEC_TO_USEC;
     // Nothing should be written to the display because the transit is way too
     // long.
     mock().expectOneCall("triggeredAt").onObject(barrier2);
@@ -201,7 +201,7 @@ TEST(SpeedMachineTestGroup, SettingUnitsToKmhSpeedShouldBeDisplayedInMph)
     machine->start();
     machine->setUnits(SpeedMachine::Units::KM_PER_HR);
     barrier1->triggeredTime = 0UL;
-    barrier2->triggeredTime = 1000UL;
+    barrier2->triggeredTime = SEC_TO_USEC;
     barrier2->simulateTriggered();
     mock().enable();
     // 1 m/s = 3.6km/h
@@ -214,7 +214,7 @@ TEST(SpeedMachineTestGroup, SettingUnitsToMphSpeedShouldBeDisplayedInMph)
     machine->start();
     machine->setUnits(SpeedMachine::Units::MI_PER_HR);
     barrier1->triggeredTime = 0UL;
-    barrier2->triggeredTime = 1000UL;
+    barrier2->triggeredTime = SEC_TO_USEC;
     barrier2->simulateTriggered();
     mock().enable();
     // 1 m/s = 2.24 m/h

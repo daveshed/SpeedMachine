@@ -1,6 +1,6 @@
 #ifndef OSAL_H
 #define OSAL_H
-#include <cstdint>
+#include <stdint.h>
 
 namespace Osal
 {

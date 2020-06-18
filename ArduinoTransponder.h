@@ -2,29 +2,30 @@
 #define ARDUINOTRANSPONDER_H
 #include <stdint.h>
 #include "UltrasonicSensor.h"
+using namespace UltrasonicSensor;
 
 class ArduinoTransmitter : public Transmitter {
 public:
     ArduinoTransmitter(uint8_t pin);
-    bool IsEnabled(void) const;
-    void Enable(void);
-    void Disable(void);
+    bool isEnabled(void) const;
+    void enable(void);
+    void disable(void);
 private:
     const uint8_t pin;
     bool enabled = false;
-    void DisableTimer1Pwm(void);
-    void ConfigureTimer1Pwm(void);
+    void disableTimer1Pwm(void);
+    void configureTimer1Pwm(void);
 };
 
 class ArduinoReceiver : public Receiver {
 public:
     ArduinoReceiver(uint8_t pin);
-    bool IsEnabled(void) const;
-    void Enable();
-    void Disable(void);
-    void HandleEcho(void);
-    void HandlePing(void);
-    void RegisterListener(EchoListener* toRegister);
+    bool isEnabled(void) const;
+    void enable();
+    void disable(void);
+    void handleEcho(void);
+    void handlePing(void);
+    void registerListener(EchoListener* toRegister);
 private:
     const uint8_t pin;
     bool enabled = false;

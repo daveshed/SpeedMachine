@@ -1,11 +1,11 @@
-#include <cstdlib>
+#include <stdlib.h>
 
-#include "Osal.h"
+#include "Logging.h"
 #include "SpeedMachine.h"
 using namespace SpeedMachine;
 
 uint32_t Controller::maxTransitSec = 5UL;
-double Controller::barrierDistanceMetres = 1UL;
+double Controller::barrierDistanceMetres = 1.0;
 Units Controller::units = Units::METRES_PER_SEC;
 double Controller::conversionFactors[Units::NUM_UNITS] = {1.0, 3.6, 2.23694};
 
@@ -31,6 +31,7 @@ void Controller::start(void)
     barrier1->enable();
     barrier2->enable();
     display->clear();
+    display->doAnimation();
 }
 
 bool Controller::isReady(void)
@@ -49,15 +50,26 @@ void Controller::setUnits(SpeedMachine::Units newUnit)
     units = newUnit;
 }
 
-void Controller::barrierTriggered(Barrier* barrier)
+void Controller::setBarrierDistanceM(double value)
 {
-    int32_t transitMs = barrier2->triggeredAt() - barrier1->triggeredAt();
-    double transitSec = transitMs / 1000L;
+    barrierDistanceMetres = value;
+}
+
+void Controller::handleBarrierTriggered(Barrier* barrier)
+{
+    int32_t transitUs = barrier2->triggeredAt() - barrier1->triggeredAt();
+    double transitSec = transitUs / 1E6L;
     bool tookAges = abs(transitSec) > maxTransitSec;
     if (tookAges) return;
     double velocity = calculateVelocity(transitSec);
     display->clear();
     display->showDecimal(velocity, 1U);
+    LOG_DEBUG("Transit -> ");
+    LOG_DEBUG(transitUs);
+    LOG_DEBUG("us\n");
+    LOG_DEBUG("Got velocity -> ");
+    LOG_DEBUG(velocity);
+    LOG_DEBUG("units\n");
 }
 
 double Controller::calculateVelocity(double transitSec)

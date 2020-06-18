@@ -8,28 +8,28 @@
 ArduinoTransmitter::ArduinoTransmitter(uint8_t pin) : pin(pin)
 {}
 
-bool ArduinoTransmitter::IsEnabled(void) const
+bool ArduinoTransmitter::isEnabled(void) const
 {
     return enabled;
 }
 
-void ArduinoTransmitter::Enable(void)
+void ArduinoTransmitter::enable(void)
 {
     Serial.println("Enabling transmitter...");
     if (enabled) return;
-    ArduinoTransmitter::ConfigureTimer1Pwm();
+    ArduinoTransmitter::configureTimer1Pwm();
     enabled = true;
 }
 
-void ArduinoTransmitter::Disable(void)
+void ArduinoTransmitter::disable(void)
 {
     Serial.println("Disabling transmitter...");
     if (!enabled) return;
-    ArduinoTransmitter::DisableTimer1Pwm();
+    ArduinoTransmitter::disableTimer1Pwm();
     enabled = false;
 }
 
-void ArduinoTransmitter::DisableTimer1Pwm(void)
+void ArduinoTransmitter::disableTimer1Pwm(void)
 {
     DISABLE_INTERRUPTS;
     TCCR1A = 0;
@@ -37,7 +37,7 @@ void ArduinoTransmitter::DisableTimer1Pwm(void)
     ENABLE_INTERRUPTS;
 }
 
-void ArduinoTransmitter::ConfigureTimer1Pwm(void)
+void ArduinoTransmitter::configureTimer1Pwm(void)
 {
     Serial.println("Configuring pwm on timer1...");
     DISABLE_INTERRUPTS;
@@ -52,12 +52,12 @@ void ArduinoTransmitter::ConfigureTimer1Pwm(void)
 ArduinoReceiver::ArduinoReceiver(uint8_t pin) : pin(pin)
 {}
 
-bool ArduinoReceiver::IsEnabled(void) const
+bool ArduinoReceiver::isEnabled(void) const
 {
     return enabled;
 }
 
-void ArduinoReceiver::Enable(void)
+void ArduinoReceiver::enable(void)
 {
     Serial.println("Enabling receiver...");
     if (enabled) return;
@@ -72,7 +72,7 @@ void ArduinoReceiver::Enable(void)
 //    enabled = true;
 }
 
-void ArduinoReceiver::Disable(void)
+void ArduinoReceiver::disable(void)
 {
     if (!enabled) return;
     DISABLE_INTERRUPTS;
@@ -81,23 +81,23 @@ void ArduinoReceiver::Disable(void)
     enabled = false;
 }
 
-void ArduinoReceiver::HandleEcho(void)
+void ArduinoReceiver::handleEcho(void)
 {
     //Serial.println("Handling echo...");
     if (listener)
     {
         uint32_t elapsedTime = micros() - initialTime;
-        listener->HandleEcho(elapsedTime);
+        listener->handleEcho(elapsedTime);
     }
 }
 
-void ArduinoReceiver::HandlePing(void)
+void ArduinoReceiver::handlePing(void)
 {
     //Serial.println("Handling ping...");
     initialTime = micros();
 }
 
-void ArduinoReceiver::RegisterListener(EchoListener* toRegister)
+void ArduinoReceiver::registerListener(EchoListener* toRegister)
 {
     listener = toRegister;
 }
