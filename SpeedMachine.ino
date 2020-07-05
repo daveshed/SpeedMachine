@@ -64,7 +64,7 @@ void setup(void)
       digitalPinToInterrupt(ECHO_PINB),
       HandleInterruptB,
       CHANGE);
-    controller.setBarrierDistanceM(0.15);
+    controller.setBarrierDistanceM(1.16);
     controller.start();
     LOG_VERBOSE("Setup done.");
 }

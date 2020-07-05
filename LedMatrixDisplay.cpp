@@ -69,7 +69,7 @@ LedMatrixDisplay::LedMatrixDisplay(uint8_t segments, uint8_t csPin)
 void LedMatrixDisplay::setup(void)
 {
     display.setEnabled(true);
-    display.setIntensity(2);   // 0 = low, 10 = high
+    display.setIntensity(8);   // 0 = low, 10 = high
     display.clear();
 }
 

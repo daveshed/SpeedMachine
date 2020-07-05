@@ -6,16 +6,8 @@ using namespace SpeedMachine;
 
 uint32_t Controller::maxTransitSec = 5UL;
 double Controller::barrierDistanceMetres = 1.0;
-Units Controller::units = Units::METRES_PER_SEC;
+Units Controller::units = Units::MI_PER_HR;
 double Controller::conversionFactors[Units::NUM_UNITS] = {1.0, 3.6, 2.23694};
-
-    typedef enum {
-        METRES_PER_SEC,
-        KM_PER_HR,
-        MI_PER_HR,
-        NUM_UNITS,
-    } Units;
-
 
 Controller::Controller(
     Barrier* barrier1,
@@ -66,7 +58,9 @@ void Controller::handleBarrierTriggered(Barrier* barrier)
     display->showDecimal(velocity, 1U);
     LOG_DEBUG("Transit -> ");
     LOG_DEBUG(transitUs);
-    LOG_DEBUG("us\n");
+    LOG_DEBUG("us ");
+    LOG_DEBUG(transitSec);
+    LOG_DEBUG("s\n");
     LOG_DEBUG("Got velocity -> ");
     LOG_DEBUG(velocity);
     LOG_DEBUG("units\n");
@@ -74,5 +68,16 @@ void Controller::handleBarrierTriggered(Barrier* barrier)
 
 double Controller::calculateVelocity(double transitSec)
 {
-    return barrierDistanceMetres / transitSec * conversionFactors[units];
+    LOG_DEBUG("Barrier distance -> ");
+    LOG_DEBUG(barrierDistanceMetres);
+    LOG_DEBUG("\n");
+
+    double metresPerSec = (barrierDistanceMetres / transitSec);
+    LOG_DEBUG("conversion factor -> ");
+    LOG_DEBUG(conversionFactors[units]);
+    LOG_DEBUG("\n");
+    LOG_DEBUG("m/s velocity -> ");
+    LOG_DEBUG(metresPerSec);
+    LOG_DEBUG("\n");
+    return (barrierDistanceMetres / transitSec) * conversionFactors[units];
 }

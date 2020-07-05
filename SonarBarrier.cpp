@@ -3,7 +3,7 @@
 #include "SonarBarrier.h"
 using namespace SonarBarrier;
 
-double Barrier::distanceToTriggerCm = 30.0;
+double Barrier::distanceToTriggerCm = 200.0;
 uint32_t Barrier::debounceTimeMs = 100UL;
 
 Barrier::Barrier(
